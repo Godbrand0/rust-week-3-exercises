@@ -13,6 +13,8 @@ pub enum BitcoinError {
     InvalidFormat,
 }
 
+
+
 impl CompactSize {
     pub fn new(value: u64) -> Self {
         CompactSize { value }
@@ -81,6 +83,9 @@ impl Serialize for Txid {
         serializer.serialize_str(&hex::encode(self.0))
     }
 }
+
+
+
 
 impl<'de> Deserialize<'de> for Txid {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -201,8 +206,7 @@ pub struct BitcoinTransaction {
 
 impl BitcoinTransaction {
     pub fn new(version: u32, inputs: Vec<TransactionInput>, lock_time: u32) -> Self {
-        BitcoinTransaction { version, inputs, lock_time }
-    }
+        BitcoinTransaction { version, inputs, lock_time }    }
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut bytes = Vec::new();
