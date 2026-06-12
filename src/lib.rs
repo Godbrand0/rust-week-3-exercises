@@ -13,8 +13,6 @@ pub enum BitcoinError {
     InvalidFormat,
 }
 
-
-
 impl CompactSize {
     pub fn new(value: u64) -> Self {
         CompactSize { value }
@@ -84,9 +82,6 @@ impl Serialize for Txid {
     }
 }
 
-
-
-
 impl<'de> Deserialize<'de> for Txid {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -111,7 +106,10 @@ pub struct OutPoint {
 
 impl OutPoint {
     pub fn new(txid: [u8; 32], vout: u32) -> Self {
-        OutPoint { txid: Txid(txid), vout }
+        OutPoint {
+            txid: Txid(txid),
+            vout,
+        }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
@@ -175,7 +173,11 @@ pub struct TransactionInput {
 
 impl TransactionInput {
     pub fn new(previous_output: OutPoint, script_sig: Script, sequence: u32) -> Self {
-        TransactionInput { previous_output, script_sig, sequence }
+        TransactionInput {
+            previous_output,
+            script_sig,
+            sequence,
+        }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
@@ -193,7 +195,10 @@ impl TransactionInput {
             return Err(BitcoinError::InsufficientBytes);
         }
         let sequence = u32::from_le_bytes(bytes[seq_start..seq_start + 4].try_into().unwrap());
-        Ok((TransactionInput::new(outpoint, script, sequence), seq_start + 4))
+        Ok((
+            TransactionInput::new(outpoint, script, sequence),
+            seq_start + 4,
+        ))
     }
 }
 
@@ -206,7 +211,12 @@ pub struct BitcoinTransaction {
 
 impl BitcoinTransaction {
     pub fn new(version: u32, inputs: Vec<TransactionInput>, lock_time: u32) -> Self {
-        BitcoinTransaction { version, inputs, lock_time }    }
+        BitcoinTransaction {
+            version,
+            inputs,
+            lock_time,
+        }
+    }
 
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut bytes = Vec::new();
@@ -253,8 +263,16 @@ impl fmt::Display for BitcoinTransaction {
         writeln!(f, "Inputs: {}", self.inputs.len())?;
         for (i, input) in self.inputs.iter().enumerate() {
             writeln!(f, "  Input {}:", i)?;
-            writeln!(f, "    Previous Output Txid: {}", hex::encode(input.previous_output.txid.0))?;
-            writeln!(f, "    Previous Output Vout: {}", input.previous_output.vout)?;
+            writeln!(
+                f,
+                "    Previous Output Txid: {}",
+                hex::encode(input.previous_output.txid.0)
+            )?;
+            writeln!(
+                f,
+                "    Previous Output Vout: {}",
+                input.previous_output.vout
+            )?;
             writeln!(f, "    ScriptSig Length: {}", input.script_sig.bytes.len())?;
             writeln!(f, "    ScriptSig: {}", hex::encode(&input.script_sig.bytes))?;
             writeln!(f, "    Sequence: {:#010X}", input.sequence)?;
